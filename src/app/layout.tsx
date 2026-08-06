@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -20,12 +21,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`bg-background ${plusJakartaSans.variable}`}>
-        <header className="bg-white shadow">
-          <nav className="max-w-7xl mx-auto px-4 py-4">
-            <h1 className="text-2xl font-bold">My App</h1>
-          </nav>
-        </header>
-        <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+        <QueryProvider>
+          <header className="bg-white shadow">
+            <nav className="max-w-7xl mx-auto px-4 py-4">
+              <h1 className="text-2xl font-bold">My App</h1>
+            </nav>
+          </header>
+          <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+        </QueryProvider>
       </body>
     </html>
   );
