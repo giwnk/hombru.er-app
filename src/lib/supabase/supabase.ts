@@ -1,22 +1,24 @@
 import { createBrowserClient, createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 // ==========================================
-// 1. CLIENT UTILITY
+// 1. CLIENT UTILITY (Untuk Client Components / 'use client')
 // ==========================================
 export const createBrowserSupabase = () =>
-  createBrowserClient(supabaseUrl!, supabaseKey!);
+  createBrowserClient(supabaseUrl, supabaseKey);
 
 // ==========================================
-// 2. SERVER UTILITY
+// 2. SERVER UTILITY (Untuk Server Components, Server Actions & Route Handlers)
 // ==========================================
-export const createServerSupabase = (
-  cookieStore: Awaited<ReturnType<typeof cookies>>,
-) => {
-  return createServerClient(supabaseUrl!, supabaseKey!, {
+export const createServerSupabase = async () => {
+  const cookieStore = await cookies();
+
+  return createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -28,10 +30,10 @@ export const createServerSupabase = (
           );
         } catch {
           // The `setAll` method was called from a Server Component.
-          // This can be ignored if you have middleware refreshing
-          // user sessions.
+          // This can be ignored if you have middleware refreshing user sessions.
         }
       },
     },
   });
 };
+
