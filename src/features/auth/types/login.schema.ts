@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { AUTH_MESSAGES } from "../constants/auth.constants";
-
 export const loginSchema = z.object({
   email: z
     .string()
