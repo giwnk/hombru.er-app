@@ -3,17 +3,19 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, X } from "lucide-react";
+import { CoffeeProduct } from "../types/coffee-products.type";
+import { useDeleteCoffeeProduct } from "../hooks/useCoffeeProducts";
 
 interface DeleteCoffeeProductDialogProps {
   isOpen?: boolean;
   onClose?: () => void;
-  productName?: string;
+  product?: CoffeeProduct | null;
 }
 
 export default function DeleteCoffeeProductDialog({
   isOpen = true,
   onClose,
-  productName = "Ethiopia Guji Hambela",
+  product,
 }: DeleteCoffeeProductDialogProps) {
   // Lock body scroll saat dialog terbuka
   useEffect(() => {
@@ -26,6 +28,18 @@ export default function DeleteCoffeeProductDialog({
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+
+  const deleteMutation = useDeleteCoffeeProduct();
+
+  const handleDelete = async () => {
+    if (!product?.id) return;
+    try {
+      await deleteMutation.mutateAsync(product.id);
+      onClose?.();
+    } catch (error) {
+      console.error("Gagal menghapus produk kopi:", error);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -54,8 +68,8 @@ export default function DeleteCoffeeProductDialog({
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
             Apakah kamu yakin ingin menghapus{" "}
-            <strong className="text-foreground">{productName}</strong>? Action ini
-            tidak dapat dibatalkan.
+            <strong className="text-foreground">{product?.product_name}</strong>
+            ? Action ini tidak dapat dibatalkan.
           </p>
         </div>
 
@@ -64,6 +78,7 @@ export default function DeleteCoffeeProductDialog({
           <Button
             type="button"
             variant="outline"
+            disabled={deleteMutation.isPending}
             className="w-30 h-9 text-xs rounded-xl cursor-pointer"
             onClick={onClose}
           >
@@ -72,10 +87,11 @@ export default function DeleteCoffeeProductDialog({
           <Button
             type="button"
             variant="destructive"
+            disabled={deleteMutation.isPending}
             className="w-30 h-9 text-xs rounded-xl font-semibold cursor-pointer"
-            onClick={() => console.log("Confirm Delete")}
+            onClick={handleDelete}
           >
-            Ya, Hapus
+            {deleteMutation.isPending ? "Menghapus..." : "Ya, Hapus"}
           </Button>
         </div>
       </div>

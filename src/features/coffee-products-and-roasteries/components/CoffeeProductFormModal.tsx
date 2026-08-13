@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  CloudCog,
   Coffee,
   DollarSign,
   Flame,
@@ -37,6 +38,7 @@ import {
 } from "../types/coffee-products.schema";
 import {
   useCreateCoffeeProduct,
+  useGetRoasteries,
   useUpdateCoffeeProduct,
 } from "../hooks/useCoffeeProducts";
 import { CoffeeProduct } from "../types/coffee-products.type";
@@ -54,9 +56,12 @@ export default function CoffeeProductFormModal({
   isEditMode = false,
   initialData,
 }: CoffeeProductFormModalProps) {
-  // Hooks React Query untuk Create & Update
+  // Hooks React Query untuk Create, Update, & Roasteries
   const createMutation = useCreateCoffeeProduct();
   const updateMutation = useUpdateCoffeeProduct();
+  const { data: dbRoasteries } = useGetRoasteries();
+  // Roasteries asli dari Database Supabase milik user
+  const roasteryOptions = dbRoasteries || [];
 
   // Setup React Hook Form dengan Zod Schema
   const {
@@ -102,10 +107,12 @@ export default function CoffeeProductFormModal({
 
   // Effect untuk me-reset form jika dalam Mode Edit
   useEffect(() => {
-    if (isEditMode && initialData) {
+    if (isOpen && isEditMode && initialData) {
+      const selectedRoasteryId =
+        initialData.roastery_id || initialData.roastery?.id || "";
       reset({
         product_name: initialData.product_name || "",
-        roastery_id: initialData.roastery_id || "",
+        roastery_id: selectedRoasteryId,
         country_of_origin: initialData.country_of_origin || "",
         region: initialData.region || "",
         altitude: initialData.altitude ? String(initialData.altitude) : "",
@@ -122,7 +129,7 @@ export default function CoffeeProductFormModal({
         product_url: initialData.product_url || "",
         more_info: initialData.more_info || "",
       });
-    } else {
+    } else if (isOpen && !isEditMode) {
       reset({
         product_name: "",
         roastery_id: "",
@@ -143,7 +150,7 @@ export default function CoffeeProductFormModal({
         more_info: "",
       });
     }
-  }, [isEditMode, initialData, reset, isOpen]);
+  }, [isOpen, isEditMode, initialData, reset, dbRoasteries]);
 
   // Handler Submit Form
   const onSubmit = async (values: CoffeeProductsFormInput) => {
@@ -226,6 +233,7 @@ export default function CoffeeProductFormModal({
                     name="roastery_id"
                     render={({ field }) => (
                       <Select
+                        key={field.value || "empty-roastery"}
                         onValueChange={field.onChange}
                         value={field.value || undefined}
                       >
@@ -233,10 +241,11 @@ export default function CoffeeProductFormModal({
                           <SelectValue placeholder="-- Pilih Roastery --" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="r-1">Space Roastery</SelectItem>
-                          <SelectItem value="r-2">Smoking Barrels</SelectItem>
-                          <SelectItem value="r-3">Common Grounds</SelectItem>
-                          <SelectItem value="r-4">Jawa Barat Coffee Roasters</SelectItem>
+                          {roasteryOptions.map((roastery) => (
+                            <SelectItem key={roastery.id} value={roastery.id}>
+                              {roastery.roastery_name || roastery.name || "Roastery Tanpa Nama"}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     )}

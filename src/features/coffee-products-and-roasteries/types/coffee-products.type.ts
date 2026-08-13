@@ -1,3 +1,5 @@
+import { Roastery } from "./roastery.type";
+
 export interface ActionResponse<T = null> {
   success: boolean;
   message?: string;
@@ -5,14 +7,6 @@ export interface ActionResponse<T = null> {
   data?: T;
 }
 
-export interface Roastery {
-  id: string;
-  name: string;
-  country?: string;
-  contact_info?: string;
-  roastery_score?: number;
-  more_info?: string;
-}
 
 export interface CoffeeProduct {
   id: string;
@@ -35,6 +29,7 @@ export interface CoffeeProduct {
   decaf?: boolean;
   price?: number;
   roastery?: Roastery;
+  roasteries?: Roastery;
 }
 
 export type CreateProductPayload = Omit<

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import {
   ArrowUpRightFromSquare,
+  Calendar,
   ChevronRight,
   Coffee,
   Flame,
@@ -20,45 +21,37 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
+import { CoffeeProduct } from "../types/coffee-products.type";
 
-export default function CoffeeProductCard() {
-  // Hardcoded data referensi untuk preview UI
-  const mockProduct = {
-    id: "cp-1",
-    product_name: "Ethiopia Guji Hambela",
-    roastery: {
-      name: "Space Roastery",
-      country: "Indonesia",
-    },
-    country_of_origin: "Ethiopia",
-    region: "Guji, Oromia",
-    altitude: 1950,
-    processing: "Anaerobic Natural",
-    roast_level: "Light Roast",
-    flavour_profile: "Jasmine, Peach, Bergamot, Earl Grey, Honey",
-    cupping_score: 88.5,
-    weight: 250,
-    price: 165000,
-    product_image_url:
-      "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=600&auto=format&fit=crop",
-    product_url: "https://spaceroastery.com",
-    decaf: false,
-  };
+interface CoffeeProductCardProps {
+  product: CoffeeProduct;
+  onEdit?: (product: CoffeeProduct) => void;
+  onDelete?: (product: CoffeeProduct) => void;
+  onDetail?: (product: CoffeeProduct) => void;
+}
+
+export default function CoffeeProductCard({
+  product,
+  onDetail,
+  onEdit,
+  onDelete,
+}: CoffeeProductCardProps) {
+  const dataProduct = product;
 
   // Ambil maksimal 3 tasting notes esensial
-  const flavourTags = mockProduct.flavour_profile
-    .split(",")
+  const flavourTags = dataProduct.flavour_profile
+    ?.split(",")
     .map((tag) => tag.trim())
     .slice(0, 3);
 
   return (
-    <Card className="group relative overflow-hidden border border-border bg-card hover:border-primary/50 transition-all duration-300 rounded-xl max-w-2xs w-full shadow-2xs">
+    <Card className="group relative overflow-hidden border border-border bg-card hover:border-primary/50 transition-all duration-300 rounded-xl w-full shadow-2xs">
       {/* 1. Gambar & Badge Esensial */}
       <div className="relative h-36 w-full overflow-hidden bg-muted">
-        {mockProduct.product_image_url ? (
+        {dataProduct.product_image_url ? (
           <Image
-            src={mockProduct.product_image_url}
-            alt={mockProduct.product_name}
+            src={dataProduct.product_image_url}
+            alt={dataProduct.product_name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -76,7 +69,7 @@ export default function CoffeeProductCard() {
             size="icon"
             variant="ghost"
             className="h-7 w-7 cursor-pointer rounded-lg bg-background/90 border border-border/60 hover:bg-accent text-foreground shadow-2xs"
-            onClick={() => console.log("Edit clicked")}
+            onClick={() => onEdit?.(dataProduct)}
           >
             <Pencil className="h-3 w-3" />
           </Button>
@@ -84,71 +77,80 @@ export default function CoffeeProductCard() {
             size="icon"
             variant="ghost"
             className="h-7 w-7 cursor-pointer rounded-lg bg-background/90 border border-border/60 hover:bg-destructive hover:text-destructive-foreground text-destructive shadow-2xs"
-            onClick={() => console.log("Delete clicked")}
+            onClick={() => onDelete?.(dataProduct)}
           >
             <Trash2 className="h-3 w-3" />
           </Button>
         </div>
 
         {/* Cupping Score Floating */}
-        {mockProduct.cupping_score && (
-          <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-2xs">
-            <Star className="w-3 h-3 fill-primary-foreground" />
-            <span>{mockProduct.cupping_score} PTS</span>
-          </div>
-        )}
+        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-2xs">
+          <Star className="w-3 h-3 fill-primary-foreground" />
+          <span>{dataProduct.cupping_score ? `${dataProduct.cupping_score} PTS` : "- PTS"}</span>
+        </div>
       </div>
 
       {/* 2. Nama Roastery, Produk, & Asal (Esensial) */}
       <CardHeader className="p-3 pb-1 space-y-0.5">
         <div className="flex items-center gap-1 text-[10px] font-bold tracking-widest text-primary uppercase">
           <Coffee className="w-3 h-3 shrink-0" />
-          <span className="truncate">{mockProduct.roastery.name}</span>
+          <span className="truncate">
+            {dataProduct.roastery?.roastery_name ||
+              dataProduct.roastery?.name ||
+              dataProduct.roasteries?.roastery_name ||
+              dataProduct.roasteries?.name ||
+              "-"}
+          </span>
         </div>
 
         <h3 className="font-sans text-base font-bold text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
-          {mockProduct.product_name}
+          {dataProduct.product_name || "-"}
         </h3>
 
-        {mockProduct.country_of_origin && (
-          <div className="flex items-center gap-1 text-[11px] text-muted-foreground pt-0.5">
-            <Globe className="w-3 h-3 text-muted-foreground/70 shrink-0" />
-            <span>{mockProduct.country_of_origin}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground pt-0.5">
+          <Globe className="w-3 h-3 text-muted-foreground/70 shrink-0" />
+          <span>{dataProduct.country_of_origin || "-"}</span>
+        </div>
       </CardHeader>
 
       {/* 3. Atribut Kopi Utama (Process, Roast, Tasting Notes) */}
       <CardContent className="p-3 pt-1 space-y-2">
         <div className="flex flex-wrap gap-1 items-center">
-          {mockProduct.processing && (
-            <Badge
-              variant="secondary"
-              className="bg-accent text-accent-foreground border border-border/50 text-[10px] font-medium px-2 py-0.5"
-            >
-              <Sparkles className="w-2.5 h-2.5 mr-1 text-primary" />
-              {mockProduct.processing}
-            </Badge>
-          )}
+          <Badge
+            variant="secondary"
+            className="bg-accent text-accent-foreground border border-border/50 text-[10px] font-medium px-2 py-0.5"
+          >
+            <Sparkles className="w-2.5 h-2.5 mr-1 text-primary" />
+            {dataProduct.processing ? dataProduct.processing : "Process: -"}
+          </Badge>
 
-          {mockProduct.roast_level && (
-            <div className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground px-2 py-0.5 rounded-md border border-border/40">
-              <Flame className="w-3 h-3 text-primary shrink-0" />
-              <span>{mockProduct.roast_level}</span>
-            </div>
-          )}
+          <div className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground px-2 py-0.5 rounded-md border border-border/40">
+            <Flame className="w-3 h-3 text-primary shrink-0" />
+            <span>{dataProduct.roast_level ? dataProduct.roast_level : "Roast Level: -"}</span>
+          </div>
+
+          <div className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground px-2 py-0.5 rounded-md border border-border/40">
+            <Calendar className="w-3 h-3 text-primary shrink-0" />
+            <span>{dataProduct.roast_date ? dataProduct.roast_date : "Roast Date: -"}</span>
+          </div>
         </div>
 
         {/* Top 3 Tasting Notes */}
         <div className="flex flex-wrap gap-1">
-          {flavourTags.map((note, index) => (
-            <span
-              key={index}
-              className="text-[10px] font-medium bg-muted/60 text-muted-foreground px-2 py-0.5 rounded-md border border-border/40"
-            >
-              {note}
+          {flavourTags && flavourTags.length > 0 && flavourTags[0] !== "" ? (
+            flavourTags.map((note, index) => (
+              <span
+                key={index}
+                className="text-[10px] font-medium bg-muted/60 text-muted-foreground px-2 py-0.5 rounded-md border border-border/40"
+              >
+                {note}
+              </span>
+            ))
+          ) : (
+            <span className="text-[10px] font-medium bg-muted/60 text-muted-foreground px-2 py-0.5 rounded-md border border-border/40">
+              Notes: -
             </span>
-          ))}
+          )}
         </div>
       </CardContent>
 
@@ -156,15 +158,15 @@ export default function CoffeeProductCard() {
       <CardFooter className="p-3 pt-2 border-t border-border/60 flex items-center justify-between bg-muted/10">
         <div>
           <span className="text-[10px] text-muted-foreground block leading-tight">
-            {mockProduct.weight}g
+            {dataProduct.weight ? `${dataProduct.weight}g` : "-g"}
           </span>
           <span className="text-sm font-bold text-foreground">
-            Rp {mockProduct.price.toLocaleString("id-ID")}
+            {dataProduct.price ? `Rp ${dataProduct.price.toLocaleString("id-ID")}` : "Rp -"}
           </span>
         </div>
 
         <div className="flex gap-1.5">
-          {mockProduct.product_url && (
+          {dataProduct.product_url && (
             <Button
               size="sm"
               variant="ghost"
@@ -172,7 +174,7 @@ export default function CoffeeProductCard() {
               asChild
             >
               <a
-                href={mockProduct.product_url}
+                href={dataProduct.product_url}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -186,7 +188,7 @@ export default function CoffeeProductCard() {
             size="sm"
             variant="default"
             className="gap-1 cursor-pointer rounded-lg text-xs h-7 px-2.5"
-            onClick={() => console.log("Detail clicked")}
+            onClick={() => onDetail?.(dataProduct)}
           >
             <span>Detail</span>
             <ChevronRight className="w-3 h-3" />
@@ -196,4 +198,3 @@ export default function CoffeeProductCard() {
     </Card>
   );
 }
-

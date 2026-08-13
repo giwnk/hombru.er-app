@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import CoffeeProductList from "@/features/coffee-products/components/CoffeeProductList";
-import CoffeeProductFormModal from "@/features/coffee-products/components/CoffeeProductFormModal";
-import CoffeeProductDetailModal from "@/features/coffee-products/components/CoffeeProductDetailModal";
-import DeleteCoffeeProductDialog from "@/features/coffee-products/components/DeleteCoffeeProductDialog";
+import CoffeeProductList from "@/features/coffee-products-and-roasteries/components/CoffeeProductList";
+import CoffeeProductFormModal from "@/features/coffee-products-and-roasteries/components/CoffeeProductFormModal";
+import CoffeeProductDetailModal from "@/features/coffee-products-and-roasteries/components/CoffeeProductDetailModal";
+import DeleteCoffeeProductDialog from "@/features/coffee-products-and-roasteries/components/DeleteCoffeeProductDialog";
 import { Eye, Edit3, Plus, Trash2, Sparkles } from "lucide-react";
 
 export default function PGPage() {
@@ -100,7 +100,7 @@ export default function PGPage() {
       <DeleteCoffeeProductDialog
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
-        productName="Ethiopia Guji Hambela"
+        product={null}
       />
     </main>
   );

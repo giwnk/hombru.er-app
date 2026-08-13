@@ -58,21 +58,29 @@ export const updateSession = async (request: NextRequest) => {
   // ==========================================
   // 🛡️ 4. LOGIC PROTEKSI ROUTE
   // ==========================================
-  // Amankan halaman dashboard untuk user yang belum login
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  const pathname = request.nextUrl.pathname;
+
+  // Amankan halaman yang membutuhkan autentikasi (/collections, /dashboard, atau root /)
+  const isProtectedRoute =
+    pathname === "/" ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/collections");
+
+  if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
   }
 
-  // Jauhkan halaman login dari user yang sudah punya sesi aktif
-  if (
-    user &&
-    (request.nextUrl.pathname.startsWith("/auth/login") ||
-      request.nextUrl.pathname.startsWith("/auth/register"))
-  ) {
+  // Alihkan user yang sudah login dari halaman auth / landing page ke /collections
+  const isAuthOrLandingRoute =
+    pathname.startsWith("/auth/login") ||
+    pathname.startsWith("/auth/register") ||
+    pathname === "/";
+
+  if (user && isAuthOrLandingRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/collections";
     return NextResponse.redirect(url);
   }
 

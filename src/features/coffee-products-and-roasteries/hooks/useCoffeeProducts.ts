@@ -5,6 +5,7 @@ import {
   deleteCoffeeProduct,
   getCoffeeProducts,
   getCoffeeProductsById,
+  getRoasteries,
   updateCoffeeProduct,
 } from "../services/coffee-products.service";
 import {
@@ -23,6 +24,19 @@ export const useGetCoffeeProducts = (params?: CoffeeProductParams) => {
       const response = await getCoffeeProducts(params);
       if (!response.success) {
         throw new Error(response.error || "Gagal mengambil data produk kopi.");
+      }
+      return response.data || [];
+    },
+  });
+};
+
+export const useGetRoasteries = () => {
+  return useQuery({
+    queryKey: ["roasteries"],
+    queryFn: async () => {
+      const response = await getRoasteries();
+      if (!response.success) {
+        throw new Error(response.error || "Gagal mengambil data roastery.");
       }
       return response.data || [];
     },

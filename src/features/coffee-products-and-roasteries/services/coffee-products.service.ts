@@ -43,11 +43,58 @@ export async function createCoffeeProduct(
       };
     }
 
-    // 4. Insert data ke tabel coffee_products
+    // 3.5 Pastikan roastery_id terdaftar di tabel roasteries agar tidak melanggar Foreign Key Constraint
+    let finalRoasteryId = validatedData.data.roastery_id;
+
+    if (finalRoasteryId) {
+      const { data: existingRoastery } = await supabase
+        .from("roasteries")
+        .select("id")
+        .eq("id", finalRoasteryId)
+        .maybeSingle();
+
+      if (!existingRoastery) {
+        const { data: newRoastery, error: roasteryError } = await supabase
+          .from("roasteries")
+          .insert({
+            id: finalRoasteryId,
+            name: "Default Roastery",
+            user_id: user.id,
+          })
+          .select("id")
+          .single();
+
+        if (roasteryError) {
+          const { data: autoRoastery } = await supabase
+            .from("roasteries")
+            .insert({
+              name: "Default Roastery",
+              user_id: user.id,
+            })
+            .select("id")
+            .single();
+
+          if (autoRoastery) {
+            finalRoasteryId = autoRoastery.id;
+          }
+        }
+      }
+    }
+
+    // 4. Transformasi empty string ("") ke null agar kompatibel dengan tipe DATE/NUMERIC di PostgreSQL
+    const sanitizedData = Object.fromEntries(
+      Object.entries(validatedData.data).map(([key, val]) => [
+        key,
+        val === "" ? null : val,
+      ])
+    );
+
+    // 5. Insert data ke tabel coffee_products
     const { data: newProduct, error: insertError } = await supabase
       .from("coffee_products")
       .insert({
-        ...validatedData.data,
+        ...sanitizedData,
+        roastery_id: finalRoasteryId,
         user_id: user.id,
       })
       .select("*, roasteries(*)")
@@ -150,10 +197,20 @@ export async function getCoffeeProducts(
       };
     }
 
+    // Standardisasi relasi roastery/roasteries agar konsisten
+    const formattedProducts = (products || []).map((item: CoffeeProduct) => {
+      const roasteryObj = item.roastery || item.roasteries;
+      return {
+        ...item,
+        roastery: roasteryObj,
+        roasteries: roasteryObj,
+      };
+    });
+
     // 5. Kembalikan respons sukses
     return {
       success: true,
-      data: (products as CoffeeProduct[]) || [],
+      data: formattedProducts as CoffeeProduct[],
     };
   } catch (error) {
     console.error("getCoffeeProducts Error:", error);
@@ -254,9 +311,16 @@ export async function updateCoffeeProduct(
       };
     }
 
+    const sanitizedUpdateData = Object.fromEntries(
+      Object.entries(validatedData.data).map(([key, val]) => [
+        key,
+        val === "" ? null : val,
+      ])
+    );
+
     const { data: updatedProduct, error: updateError } = await supabase
       .from("coffee_products")
-      .update(validatedData.data)
+      .update(sanitizedUpdateData)
       .eq("id", id)
       .eq("user_id", user.id)
       .select("*, roasteries(*)")
@@ -333,6 +397,25 @@ export async function deleteCoffeeProduct(
       success: false,
       error: CP_MESSAGES.ERROR.SERVER_ERROR,
     };
+  }
+}
+
+export async function getRoasteries() {
+  try {
+    const supabase = await createServerSupabase();
+    const { data, error } = await supabase
+      .from("roasteries")
+      .select("*")
+      .order("roastery_name", { ascending: true });
+
+    if (error) {
+      console.error("getRoasteries Error:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (err) {
+    return { success: false, error: "Gagal mengambil data roastery." };
   }
 }
 

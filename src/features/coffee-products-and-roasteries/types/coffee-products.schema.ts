@@ -15,7 +15,10 @@ export const coffeeProductsSchema = z.object({
     .positive({ message: CP_MESSAGES.ERROR.INVALID_WEIGHT })
     .optional()
     .or(z.literal("").transform(() => undefined)),
-  roast_date: z.string().optional(),
+  roast_date: z
+    .string()
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   cupping_score: z.coerce
     .number()
     .min(75, { message: CP_MESSAGES.ERROR.INVALID_CUPPING_SCORE })
