@@ -1,9 +1,6 @@
-export interface ActionResponse<T = null> {
-  success: boolean;
-  message?: string;
-  error?: string;
-  data?: T;
-}
+import { ActionResponse } from "@/shared/response.type";
+
+export type { ActionResponse };
 
 export interface UserProfileType {
   id: string;

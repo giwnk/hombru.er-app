@@ -3,7 +3,7 @@
 import { createServerSupabase } from "@/lib/supabase/supabase";
 import { ROASTERY_MESSAGES } from "../constants/roastery.constant";
 import { roasterySchema } from "../types/roastery.schema";
-import { ActionResponse } from "../types/coffee-products.type";
+import { ActionResponse } from "@/shared/response.type";
 import {
   CreateRoasteryPayload,
   Roastery,

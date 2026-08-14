@@ -3,8 +3,8 @@
 import { createServerSupabase } from "@/lib/supabase/supabase";
 import { CP_MESSAGES } from "../constants/coffee-products.constant";
 import { coffeeProductsSchema } from "../types/coffee-products.schema";
+import { ActionResponse } from "@/shared/response.type";
 import {
-  ActionResponse,
   CoffeeProduct,
   CoffeeProductParams,
   CreateProductPayload,

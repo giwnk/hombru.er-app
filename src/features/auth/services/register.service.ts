@@ -2,7 +2,7 @@
 
 import { createServerSupabase } from "@/lib/supabase/supabase";
 import { AUTH_MESSAGES } from "../constants/auth.constants";
-import { ActionResponse } from "../types/auth.types";
+import { ActionResponse } from "@/shared/response.type";
 import { RegisterFormValues, registerSchema } from "../types/register.schema";
 
 export async function registerService(

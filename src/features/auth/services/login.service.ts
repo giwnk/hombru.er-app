@@ -2,7 +2,8 @@
 
 import { createServerSupabase } from "@/lib/supabase/supabase";
 import { AUTH_MESSAGES } from "../constants/auth.constants";
-import { ActionResponse, UserProfileType } from "../types/auth.types";
+import { ActionResponse } from "@/shared/response.type";
+import { UserProfileType } from "../types/auth.types";
 import { LoginFormValues, loginSchema } from "../types/login.schema";
 
 export async function loginService(
