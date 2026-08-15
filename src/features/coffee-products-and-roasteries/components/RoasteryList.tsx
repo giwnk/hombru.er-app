@@ -11,7 +11,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, Search, Store } from "lucide-react";
+import SearchAndFilterToolbar from "@/shared/components/SearchAndFilterToolbar";
+import { Plus, Store } from "lucide-react";
 import { useGetRoasteries } from "../hooks/useRoasteries";
 import { useRoasteryModal } from "../hooks/useRoasteryModal";
 import RoasteryCard from "./RoasteryCard";
@@ -41,19 +42,12 @@ export default function RoasteryList() {
 
   return (
     <div ref={containerRef} className="w-full space-y-6 scroll-mt-6">
-      {/* Search Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-muted/20 p-3 rounded-xl border border-border/60">
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama roastery..."
-            className="pl-9 text-xs h-9 rounded-lg bg-background border-border/60 focus-visible:ring-primary/40"
-          />
-        </div>
-      </div>
+      {/* Shared Search Bar Toolbar */}
+      <SearchAndFilterToolbar
+        searchQuery={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Cari nama roastery..."
+      />
 
       {/* Grid List Roasteries / Loading / Empty State */}
       {isLoading ? (

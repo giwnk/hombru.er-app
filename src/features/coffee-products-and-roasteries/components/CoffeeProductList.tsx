@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Coffee, Plus, Search, SlidersHorizontal } from "lucide-react";
+import SearchAndFilterToolbar from "@/shared/components/SearchAndFilterToolbar";
 import CoffeeProductCard from "./CoffeeProductCard";
 import { useGetCoffeeProducts } from "../hooks/useCoffeeProducts";
 import { useCoffeeProductModal } from "../hooks/useCoffeeProductModal";
@@ -45,7 +46,6 @@ export default function CoffeeProductList() {
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > 3) return;
     setCurrentPage(newPage);
-    // Smooth scroll halus ke bagian atas daftar tanpa lompatan abrupt browser
     containerRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "start",
@@ -54,33 +54,18 @@ export default function CoffeeProductList() {
 
   return (
     <div ref={containerRef} className="w-full space-y-6 scroll-mt-6">
-      {/* 2. Filter & Search Toolbar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-muted/20 p-3 rounded-xl border border-border/60">
-        {/* Search Input */}
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama kopi atau roaster..."
-            className="pl-9 text-xs h-9 rounded-lg bg-background border-border/60 focus-visible:ring-primary/40"
-          />
-        </div>
-
-        {/* Filter Badges / Dropdowns */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0 pr-1.5 border-r border-border/60">
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>Filter:</span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto flex-1">
+      {/* 2. Reusable Shared Filter & Search Toolbar */}
+      <SearchAndFilterToolbar
+        searchQuery={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Cari nama kopi atau roaster..."
+        filters={
+          <>
             <Select
               value={processing || "all"}
               onValueChange={(val) => setProcessing(val === "all" ? "" : val)}
             >
-              <SelectTrigger className="w-full sm:w-36 h-9 text-xs rounded-lg bg-background border-border/60">
+              <SelectTrigger className="w-32 sm:w-36 h-9.5 text-xs rounded-xl bg-background border-border/70">
                 <SelectValue placeholder="Semua Process" />
               </SelectTrigger>
               <SelectContent>
@@ -96,7 +81,7 @@ export default function CoffeeProductList() {
               value={roastLevel || "all"}
               onValueChange={(val) => setRoastLevel(val === "all" ? "" : val)}
             >
-              <SelectTrigger className="w-full sm:w-40 h-9 text-xs rounded-lg bg-background border-border/60">
+              <SelectTrigger className="w-36 sm:w-40 h-9.5 text-xs rounded-xl bg-background border-border/70">
                 <SelectValue placeholder="Semua Roast Level" />
               </SelectTrigger>
               <SelectContent>
@@ -108,9 +93,9 @@ export default function CoffeeProductList() {
                 <SelectItem value="Dark Roast">Dark Roast</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* 3. Grid List Coffee Cards / Loading / Empty State */}
       {isLoading ? (
