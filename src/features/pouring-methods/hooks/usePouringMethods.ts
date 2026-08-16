@@ -50,6 +50,8 @@ export const useCreatePouringMethod = () => {
       if (res.success) {
         toast.success(res.message || "Metode penuangan berhasil dibuat!");
         queryClient.invalidateQueries({ queryKey: ["pouring_methods"] });
+        queryClient.invalidateQueries({ queryKey: ["pouring_methods_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
       } else {
         toast.error(res.error || "Gagal menambahkan metode penuangan.");
       }
@@ -67,6 +69,8 @@ export const useUpdatePouringMethod = () => {
       if (res.success) {
         toast.success(res.message || "Metode penuangan berhasil diperbarui!");
         queryClient.invalidateQueries({ queryKey: ["pouring_methods"] });
+        queryClient.invalidateQueries({ queryKey: ["pouring_methods_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
       } else {
         toast.error(res.error || "Gagal memperbarui metode penuangan.");
       }
@@ -83,6 +87,8 @@ export const useDeletePouringMethod = () => {
       if (res.success) {
         toast.success(res.message || "Metode penuangan berhasil dihapus!");
         queryClient.invalidateQueries({ queryKey: ["pouring_methods"] });
+        queryClient.invalidateQueries({ queryKey: ["pouring_methods_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
       } else {
         toast.error(res.error || "Gagal menghapus metode penuangan.");
       }

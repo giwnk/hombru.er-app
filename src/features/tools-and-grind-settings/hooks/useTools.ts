@@ -38,6 +38,8 @@ export const useCreateTool = () => {
       if (res.success) {
         toast.success(res.message || "Alat seduh berhasil ditambahkan!");
         queryClient.invalidateQueries({ queryKey: ["tools"] });
+        queryClient.invalidateQueries({ queryKey: ["tools_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
       } else {
         toast.error(res.error || "Gagal menambahkan alat seduh.");
       }
@@ -54,6 +56,8 @@ export const useUpdateTool = () => {
       if (res.success) {
         toast.success(res.message || "Alat seduh berhasil diperbarui!");
         queryClient.invalidateQueries({ queryKey: ["tools"] });
+        queryClient.invalidateQueries({ queryKey: ["tools_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
       } else {
         toast.error(res.error || "Gagal memperbarui alat seduh.");
       }
@@ -70,6 +74,8 @@ export const useDeleteTool = () => {
       if (res.success) {
         toast.success(res.message || "Alat seduh berhasil dihapus!");
         queryClient.invalidateQueries({ queryKey: ["tools"] });
+        queryClient.invalidateQueries({ queryKey: ["tools_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
       } else {
         toast.error(res.error || "Gagal menghapus alat seduh.");
       }

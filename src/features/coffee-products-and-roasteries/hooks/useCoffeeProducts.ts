@@ -74,6 +74,8 @@ export const useCreateCoffeeProduct = () => {
       if (res.success) {
         toast.success(res.message || "Produk kopi berhasil ditambahkan! ☕");
         queryClient.invalidateQueries({ queryKey: ["coffee-products"] });
+        queryClient.invalidateQueries({ queryKey: ["coffee_products_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
       } else {
         toast.error(res.error || "Gagal menambahkan produk kopi.");
       }
@@ -96,6 +98,8 @@ export const useUpdateCoffeeProduct = () => {
       if (res.success) {
         toast.success(res.message || "Data produk kopi berhasil diperbarui.");
         queryClient.invalidateQueries({ queryKey: ["coffee-products"] });
+        queryClient.invalidateQueries({ queryKey: ["coffee_products_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
         if (res.data?.id) {
           queryClient.invalidateQueries({
             queryKey: ["coffee-product", res.data.id],
@@ -123,6 +127,8 @@ export const useDeleteCoffeeProduct = () => {
       if (res.success) {
         toast.success(res.message || "Produk kopi berhasil dihapus.");
         queryClient.invalidateQueries({ queryKey: ["coffee-products"] });
+        queryClient.invalidateQueries({ queryKey: ["coffee_products_select"] });
+        queryClient.invalidateQueries({ queryKey: ["log_brews"] });
       } else {
         toast.error(res.error || "Gagal menghapus produk kopi.");
       }
