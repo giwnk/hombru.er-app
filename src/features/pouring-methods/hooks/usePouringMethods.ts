@@ -26,7 +26,7 @@ export const useGetPouringMethods = (params?: PouringMethodParams) => {
   });
 };
 
-export const useGetPouringMethodById = (id?: number | null) => {
+export const useGetPouringMethodById = (id?: string | number | null) => {
   return useQuery({
     queryKey: ["pouring_methods", id],
     queryFn: async () => {
@@ -78,7 +78,7 @@ export const useUpdatePouringMethod = () => {
 export const useDeletePouringMethod = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => deletePouringMethod(id),
+    mutationFn: (id: string | number) => deletePouringMethod(id),
     onSuccess: (res) => {
       if (res.success) {
         toast.success(res.message || "Metode penuangan berhasil dihapus!");

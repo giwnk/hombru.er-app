@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   Coffee,
   LayoutDashboard,
   LucideIcon,
@@ -28,6 +29,12 @@ export const MAIN_NAV_ITEMS: NavGroup[] = [
         url: "/dashboard",
         icon: LayoutDashboard,
         description: "Ringkasan & aktivitas seduhan kopi",
+      },
+      {
+        title: "Jurnal Seduhan",
+        url: "/brews",
+        icon: BookOpen,
+        description: "Catatan resep, rasio & profil rasa seduhan",
       },
     ],
   },

@@ -116,7 +116,7 @@ export default function PouringMethodFormModal({
         notes: item.notes?.trim() || undefined,
       }));
 
-      if (isEditMode && initialData?.id && initialData.id > 0) {
+      if (isEditMode && initialData?.id && !initialData.is_system_template) {
         await updateMutation.mutateAsync({
           id: initialData.id,
           pour_name: values.pour_name,

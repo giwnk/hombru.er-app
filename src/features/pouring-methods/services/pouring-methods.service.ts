@@ -15,7 +15,7 @@ import {
 } from "../types/pouring-methods.types";
 
 /**
- * 1. Ambil Semua Metode Penuangan (Menggabungkan Template Bawaan Sistem + Data Custom User)
+ * 1. Ambil Semua Metode Penuangan (Selalu Menyertakan Preset Bawaan Sistem + Data Custom User)
  */
 export async function getPouringMethods(
   params?: PouringMethodParams
@@ -25,68 +25,79 @@ export async function getPouringMethods(
 
     const {
       data: { user },
-      error: userError,
     } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      return {
-        success: false,
-        error: POURING_METHOD_MESSAGE.ERROR.UNAUTHORIZED,
-      };
+    let userMethods: PouringMethod[] = [];
+
+    if (user) {
+      const { data: dbMethods, error: fetchError } = await supabase
+        .from("pouring_methods")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("id", { ascending: false });
+
+      if (!fetchError && dbMethods) {
+        userMethods = dbMethods as PouringMethod[];
+      }
+
+      // Cek apakah ada DEFAULT_POURING_PRESETS yang belum di-seed ke database user
+      const existingNames = new Set(userMethods.map((m) => m.pour_name));
+      const missingPresets = DEFAULT_POURING_PRESETS.filter(
+        (p) => !existingNames.has(p.pour_name)
+      );
+
+      if (missingPresets.length > 0) {
+        const presetsToInsert = missingPresets.map((p) => ({
+          user_id: user.id,
+          pour_name: p.pour_name,
+          description: p.description,
+          intervals: p.intervals,
+        }));
+
+        const { data: seededData, error: seedErr } = await supabase
+          .from("pouring_methods")
+          .insert(presetsToInsert)
+          .select();
+
+        if (seedErr) {
+          console.error("auto-seed DB Error:", seedErr);
+        }
+
+        if (seededData && seededData.length > 0) {
+          userMethods = [...userMethods, ...(seededData as PouringMethod[])];
+        }
+      }
     }
 
-    // Query data milik user dari Supabase
-    let query = supabase
-      .from("pouring_methods")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("id", { ascending: false });
+    // Safety Net: Jika masih ada preset yang belum ter-seed/termuat, sertakan secara virtual dari memori
+    const existingNamesFinal = new Set(userMethods.map((m) => m.pour_name));
+    const fallbackPresets: PouringMethod[] = DEFAULT_POURING_PRESETS.filter(
+      (p) => !existingNamesFinal.has(p.pour_name)
+    ).map((preset, index) => ({
+      id: `preset-${index + 1}`,
+      user_id: null,
+      pour_name: preset.pour_name,
+      description: preset.description,
+      intervals: [...preset.intervals],
+      is_system_template: true,
+    }));
 
+    let allMethods: PouringMethod[] = [...userMethods, ...fallbackPresets];
+
+    // Filter jika ada pencarian kata kunci
     if (params?.search && params.search.trim() !== "") {
-      query = query.ilike("pour_name", `%${params.search.trim()}%`);
+      const searchLower = params.search.trim().toLowerCase();
+      allMethods = allMethods.filter(
+        (m) =>
+          m.pour_name.toLowerCase().includes(searchLower) ||
+          m.description?.toLowerCase().includes(searchLower)
+      );
     }
-
-    const { data: userMethods, error: fetchError } = await query;
-
-    if (fetchError) {
-      console.error("getPouringMethods DB Error:", fetchError);
-      return {
-        success: false,
-        error: POURING_METHOD_MESSAGE.ERROR.FETCH_FAILED,
-      };
-    }
-
-    // Format 2 Template Bawaan Sistem (Preset Hints Cara A)
-    const systemPresets: PouringMethod[] = DEFAULT_POURING_PRESETS.map(
-      (preset, index) => ({
-        id: -(index + 1), // Virtual negative ID untuk template sistem
-        user_id: null,
-        pour_name: preset.pour_name,
-        description: preset.description,
-        intervals: [...preset.intervals],
-        is_system_template: true,
-      })
-    );
-
-    // Filter preset jika user sedang melakukan pencarian
-    const filteredPresets = params?.search?.trim()
-      ? systemPresets.filter(
-          (p) =>
-            p.pour_name.toLowerCase().includes(params.search!.toLowerCase()) ||
-            p.description?.toLowerCase().includes(params.search!.toLowerCase())
-        )
-      : systemPresets;
-
-    // Gabungkan: User custom methods ditaruh di depan, diikuti template sistem
-    const combinedMethods: PouringMethod[] = [
-      ...(userMethods || []),
-      ...filteredPresets,
-    ];
 
     return {
       success: true,
       message: POURING_METHOD_MESSAGE.SUCCESS.FETCH_SUCCESS,
-      data: combinedMethods,
+      data: allMethods,
     };
   } catch (error) {
     console.error("getPouringMethods Exception:", error);
@@ -101,29 +112,9 @@ export async function getPouringMethods(
  * 2. Ambil Metode Penuangan Berdasarkan ID
  */
 export async function getPouringMethodById(
-  id: number
+  id: string | number
 ): Promise<ActionResponse<PouringMethod>> {
   try {
-    // Jika ID negatif, return dari DEFAULT_POURING_PRESETS
-    if (id < 0) {
-      const presetIndex = Math.abs(id) - 1;
-      const preset = DEFAULT_POURING_PRESETS[presetIndex];
-      if (preset) {
-        return {
-          success: true,
-          message: POURING_METHOD_MESSAGE.SUCCESS.FETCH_SUCCESS,
-          data: {
-            id,
-            user_id: null,
-            pour_name: preset.pour_name,
-            description: preset.description,
-            intervals: [...preset.intervals],
-            is_system_template: true,
-          },
-        };
-      }
-    }
-
     const supabase = await createServerSupabase();
     const {
       data: { user },
@@ -141,7 +132,6 @@ export async function getPouringMethodById(
       .from("pouring_methods")
       .select("*")
       .eq("id", id)
-      .eq("user_id", user.id)
       .single();
 
     if (error || !data) {
@@ -236,12 +226,6 @@ export async function updatePouringMethod(
 ): Promise<ActionResponse<PouringMethod>> {
   try {
     const { id, ...updateFields } = payload;
-    if (!id || id < 0) {
-      return {
-        success: false,
-        error: "Template bawaan sistem tidak dapat diubah secara langsung.",
-      };
-    }
 
     const validatedData = pouringMethodSchema.safeParse(updateFields);
     if (!validatedData.success) {
@@ -304,16 +288,9 @@ export async function updatePouringMethod(
  * 5. Hapus Metode Penuangan
  */
 export async function deletePouringMethod(
-  id: number
+  id: string | number
 ): Promise<ActionResponse<null>> {
   try {
-    if (!id || id < 0) {
-      return {
-        success: false,
-        error: "Template bawaan sistem tidak dapat dihapus.",
-      };
-    }
-
     const supabase = await createServerSupabase();
     const {
       data: { user },

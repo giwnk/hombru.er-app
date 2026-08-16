@@ -10,7 +10,7 @@ export interface PourInterval {
 }
 
 export interface PouringMethod {
-  id: number;
+  id: string | number;
   created_at?: string;
   user_id?: string | null;
   pour_name: string;
@@ -25,7 +25,7 @@ export type CreatePouringMethodPayload = Omit<
 >;
 
 export type UpdatePouringMethodPayload = Partial<CreatePouringMethodPayload> & {
-  id: number;
+  id: string | number;
 };
 
 export interface PouringMethodParams {

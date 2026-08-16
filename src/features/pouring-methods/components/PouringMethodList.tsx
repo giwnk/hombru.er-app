@@ -9,7 +9,7 @@ import PouringMethodFormModal from "./PouringMethodFormModal";
 import { useGetPouringMethods } from "../hooks/usePouringMethods";
 import { usePouringMethodModal } from "../hooks/usePouringMethodModal";
 import { Button } from "@/components/ui/button";
-import { Plus, Workflow } from "lucide-react";
+import { AlertCircle, Plus, Workflow } from "lucide-react";
 
 interface PouringMethodListProps {
   externalModal?: ReturnType<typeof usePouringMethodModal>;
@@ -20,7 +20,13 @@ export default function PouringMethodList({
 }: PouringMethodListProps) {
   const [search, setSearch] = useState("");
 
-  const { data: methods = [], isLoading } = useGetPouringMethods({ search });
+  const {
+    data: methods = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetPouringMethods({ search });
+
   const localModal = usePouringMethodModal();
   const modal = externalModal || localModal;
 
@@ -43,6 +49,28 @@ export default function PouringMethodList({
               className="h-64 w-full rounded-2xl bg-muted/40 animate-pulse border border-border/40"
             />
           ))}
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center rounded-2xl border border-destructive/30 bg-destructive/5 space-y-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+            <AlertCircle className="h-6 w-6" />
+          </div>
+          <div className="space-y-1 max-w-sm">
+            <h3 className="text-base font-bold text-foreground">
+              Gagal Memuat Metode Penuangan
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Terjadi kesalahan saat mengambil data metode penuangan. Silakan coba lagi.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => refetch()}
+            className="h-8 text-xs rounded-xl font-semibold cursor-pointer px-4"
+          >
+            Coba Coba Lagi
+          </Button>
         </div>
       ) : methods.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">

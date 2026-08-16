@@ -31,7 +31,7 @@ export default function DeletePouringMethodDialog({
   const deleteMutation = useDeletePouringMethod();
 
   const handleDelete = async () => {
-    if (!method?.id || method.id < 0) return;
+    if (!method?.id || method.is_system_template) return;
     try {
       await deleteMutation.mutateAsync(method.id);
       onClose?.();
