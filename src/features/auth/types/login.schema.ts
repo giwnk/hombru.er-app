@@ -7,6 +7,7 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(1, { message: "Kata sandi wajib diisi." }),
+  
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

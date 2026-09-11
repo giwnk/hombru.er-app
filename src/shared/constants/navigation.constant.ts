@@ -3,6 +3,7 @@ import {
   Coffee,
   LayoutDashboard,
   LucideIcon,
+  Receipt,
   Workflow,
   Wrench,
 } from "lucide-react";
@@ -35,6 +36,12 @@ export const MAIN_NAV_ITEMS: NavGroup[] = [
         url: "/brews",
         icon: BookOpen,
         description: "Catatan resep, rasio & profil rasa seduhan",
+      },
+      {
+        title: "Resep Seduh",
+        url: "/recipes",
+        icon: Receipt,
+        description: "Racikan takaran bahan & instruksi seduhan",
       },
     ],
   },
