@@ -22,8 +22,8 @@ export default function LoginForm() {
   const password = usePasswordToggle();
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
+    <Card className="w-full max-w-sm mx-auto">
+      <CardHeader className="text-center">
         <CardTitle>Masuk pada akun yang sudah dibuat</CardTitle>
         <CardDescription>
           Isi data pada form untuk masuk dan menggunakan akun
@@ -31,7 +31,7 @@ export default function LoginForm() {
       </CardHeader>
       <form onSubmit={onSubmit}>
         <CardContent>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 pb-4">
             {/* Pesan Error Utama (Server Error / Kredensial Salah) */}
             {errors.root && (
               <div className="rounded-md bg-destructive/15 p-3 text-xs font-medium text-destructive text-center border border-destructive/20">

@@ -33,13 +33,13 @@ export const MAIN_NAV_ITEMS: NavGroup[] = [
       },
       {
         title: "Jurnal Seduhan",
-        url: "/brews",
+        url: "/dashboard/brews",
         icon: BookOpen,
         description: "Catatan resep, rasio & profil rasa seduhan",
       },
       {
         title: "Resep Seduh",
-        url: "/recipes",
+        url: "/dashboard/recipes",
         icon: Receipt,
         description: "Racikan takaran bahan & instruksi seduhan",
       },
@@ -50,19 +50,19 @@ export const MAIN_NAV_ITEMS: NavGroup[] = [
     items: [
       {
         title: "Biji Kopi & Roastery",
-        url: "/collections",
+        url: "/dashboard/collections",
         icon: Coffee,
         description: "Katalog biji kopi & roastery favorit",
       },
       {
         title: "Alat & Kalibrasi",
-        url: "/tools",
+        url: "/dashboard/tools",
         icon: Wrench,
         description: "Inventaris alat & setting gilingan",
       },
       {
         title: "Metode Penuangan",
-        url: "/pouring-methods",
+        url: "/dashboard/pouring-methods",
         icon: Workflow,
         description: "Teknik & interval penuangan air",
       },

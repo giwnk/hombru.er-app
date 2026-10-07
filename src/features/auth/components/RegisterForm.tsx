@@ -24,8 +24,8 @@ export default function RegisterForm() {
   const confirmPassword = usePasswordToggle();
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
+    <Card className="w-full max-w-sm mx-auto">
+      <CardHeader className="text-center">
         <CardTitle>Buat akun pertamamu</CardTitle>
         <CardDescription>Isi data pada form untuk membuat akun</CardDescription>
       </CardHeader>
