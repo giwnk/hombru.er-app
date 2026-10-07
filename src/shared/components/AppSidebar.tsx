@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import { Loader2, LogOut, Sparkles } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,9 +18,11 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { MAIN_NAV_ITEMS } from "../constants/navigation.constant";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { handleLogout, isLoading } = useLogout();
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/80">
@@ -82,8 +84,8 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      {/* 3. Footer Sidebar: App Badge */}
-      <SidebarFooter className="p-3 border-t border-border/60">
+      {/* 3. Footer Sidebar: App Badge & Logout */}
+      <SidebarFooter className="p-3 border-t border-border/60 space-y-2">
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs group-data-[collapsible=icon]:hidden">
           <div className="flex items-center gap-1.5 font-bold text-primary mb-1">
             <Sparkles className="w-3.5 h-3.5" />
@@ -93,6 +95,24 @@ export function AppSidebar() {
             Catat & kalibrasikan seduhan kopi harianmu.
           </p>
         </div>
+
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Keluar"
+              onClick={handleLogout}
+              disabled={isLoading}
+              className="h-9 px-3 font-sans text-xs text-destructive hover:bg-destructive/10 hover:text-destructive active:bg-destructive/20 cursor-pointer transition-colors"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+              ) : (
+                <LogOut className="w-4 h-4 shrink-0" />
+              )}
+              <span>{isLoading ? "Keluar..." : "Keluar"}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
 
       <SidebarRail />
